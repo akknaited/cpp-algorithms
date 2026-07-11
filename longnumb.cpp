@@ -1,0 +1,196 @@
+﻿#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+long long n = 15;
+
+vector<int> str_to_long(string s)
+{
+	vector<int> a(n, 0);
+	long long j = n - 1;
+	for (long long i = size(s); i > 0; i--)
+	{
+		a[j] = s[i - 1] - '0';
+		j--;
+	}
+	return a;
+}
+
+void print(vector<int> a)
+{
+	bool f = false;
+	for (long long i = 0; i < a.size(); i++)
+	{
+		if (a[i] > 0 && !f)
+		{
+			f = true;
+		}
+		if (f) cout << a[i];
+	}
+}
+
+string long_to_str(vector<int> a)
+{
+	bool f = false;
+	string s = "";
+	for (long long i = 0; i < a.size(); i++)
+	{
+		if (a[i] > 0 && !f)
+		{
+			f = true;
+		}
+		if (f) s += to_string(a[i]);
+	}
+	return s;
+}
+
+int sravn(vector<int> a, vector<int> b)
+{
+	for (int i = 0; i < n; i++)
+	{
+		if (a[i] > b[i]) return 1;
+		if (a[i] < b[i]) return -1;
+	}
+	return 0;
+}
+
+vector<int> sum(vector<int> a, vector<int> b)
+{
+	vector<int> c(n, 0);
+	int um = 0;
+	for (long long i = n - 1; i >= 0; i--)
+	{
+		c[i] = (a[i] + b[i] + um) % 10;
+		um = (a[i] + b[i] + um) / 10;
+	}
+	return c;
+}
+
+vector<int> razn(vector<int> a, vector<int> b)
+{
+	vector<int> c(n, 0);
+	int um = 0;
+	bool f = true;
+	for (long long i = 0; i < n - 1; i++)
+	{
+		if (a[i] > b[i])
+		{
+			break;
+		}
+		else if (a[i] < b[i])
+		{
+			f = false;
+		}
+	}
+
+	if (!f)
+	{
+		vector<int> res = razn(b, a);
+		return res;
+	}
+
+	for (long long i = n - 1; i >= 0; i--)
+	{
+		int raz = a[i] - b[i] - um;
+		if (raz >= 0)
+		{
+			c[i] = raz;
+			um = 0;
+		}
+		else
+		{
+			c[i] = raz + 10;
+			um = 1;
+		}
+	}
+	return c;
+}
+
+vector<int> mult_const(vector<int> a, int b)
+{
+	vector<int> c(n, 0);
+	int um = 0;
+	for (long long i = n - 1; i >= 0; i--)
+	{
+		c[i] = (a[i] * b + um) % 10;
+		um = (a[i] * b + um) / 10;
+	}
+	return c;
+}
+
+vector<int> mult_ten(vector<int> a, int b)
+{
+	vector<int> c(n, 0);
+	long long j = n - 1;
+	for (long long i = n - b - 1; i >= 0; i--)
+	{
+		c[i] = a[j];
+		j--;
+	}
+	return c;
+}
+
+vector<int> mult_mult(vector<int> a, vector<int> b)
+{
+	vector<int> c(n, 0);
+	long long k = 0;
+	for (long long i = n - 1; i >= 0; i--)
+	{
+		c = sum(c, mult_ten(mult_const(a, b[i]), k));
+		k++;
+	}
+	return c;
+}
+
+void div(vector<int> a, vector<int> b)
+{
+	long long i = 0;
+	vector<int> c(n, 0);
+	vector<int> d(n, 0);
+
+	while (i < n)
+	{
+		d = mult_ten(d, 1);
+		d[n - 1] = a[i];
+
+		while (sravn(d, b) >= 0)
+		{
+			c[i]++;
+			d = razn(d, b);
+		}
+		i++;
+	}
+
+	print(c);
+	cout << endl;
+	print(d);
+	cout << endl;
+}
+
+int main()
+{
+	string s1 = "351";
+	string s2 = "8912";
+
+	vector<int> a = str_to_long(s1);
+	vector<int> b = str_to_long(s2);
+
+	vector<int> c_sum = sum(a, b);
+	cout << long_to_str(c_sum) << endl;
+
+	vector<int> c_razn = razn(b, a);
+	cout << long_to_str(c_razn) << endl;
+
+	vector<int> c_mult_const = mult_const(a, 7);
+	cout << long_to_str(c_mult_const) << endl;
+
+	vector<int> c_mult_mult = mult_mult(a, b);
+	cout << long_to_str(c_mult_mult) << endl;
+
+	div(a, b);
+	div(b, a);
+
+	return 0;
+}
